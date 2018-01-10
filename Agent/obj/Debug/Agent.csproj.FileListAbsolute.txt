@@ -1,0 +1,15 @@
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\NLog.config
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Agent.dll
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Agent.pdb
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Kentor.AuthServices.dll
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\NLog.dll
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Serilog.dll
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Serilog.Sinks.Console.dll
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Kentor.AuthServices.xml
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\NLog.xml
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Serilog.xml
+C:\Users\chira\source\repos\sample\Agent\bin\Debug\Serilog.Sinks.Console.xml
+C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.csproj.CoreCompileInputs.cache
+C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.dll
+C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.pdb
+C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.csprojResolveAssemblyReference.cache
