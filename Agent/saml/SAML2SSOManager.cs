@@ -22,16 +22,18 @@ using Agent.util;
 using Agent.exceptions;
 using Agent.saml;
 using Agent.Security;
+using System.Web.UI;
+using System.Security.Principal;
 
 namespace org.wso2.carbon.identity.agent.saml
 {
-    public class SAML2SSOManager
+    public class SAML2SSOManager : IRequiresSessionState
     {
         SSOAgentConfig ssoAgentConfig = null;
 
         public SAML2SSOManager(SSOAgentConfig ssoAgentConfig)
         {
-            this.ssoAgentConfig = ssoAgentConfig;                   
+            this.ssoAgentConfig = ssoAgentConfig;
         }
 
         public String BuildRedirectRequest()
@@ -194,7 +196,7 @@ namespace org.wso2.carbon.identity.agent.saml
         public void ProcessSAMLResponse(HttpRequest request,HttpResponse response)
         {
             String samlResponse = request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP];
-
+            
             if (samlResponse != null)
             {
                 String decodedResponse = Encoding.UTF8.GetString(Convert.FromBase64String(samlResponse));
@@ -204,7 +206,7 @@ namespace org.wso2.carbon.identity.agent.saml
                 if (element.LocalName.Equals("LogoutResponse"))
                 {
                     //this is a logout response
-                    HttpContext.Current.Application["claims"] = null;
+                    HttpContext.Current.Session.RemoveAll();
                     response.Redirect("http://localhost:49763/sample/Default");
                 }
                 else {                   
@@ -277,12 +279,17 @@ namespace org.wso2.carbon.identity.agent.saml
                 ValidateAudienceRestriction(AssertionXmlElement.OwnerDocument);
              
                 Dictionary<String, String> claims = ProcessAttributeStatement(AssertionXmlElement.OwnerDocument);
+
+                HttpContext.Current.Session["SessionIndex"] = GetSessionIndex(AssertionXmlElement.OwnerDocument);
+
+                HttpContext.Current.Session["Saml2Subject"] = GetSaml2Subject(AssertionXmlElement.OwnerDocument);
+
+                HttpContext.Current.Session["claims"] = claims;
+
+                CustomPrincipal principal = new CustomPrincipal("admin");
                 
-                HttpContext.Current.Application["SessionIndex"] = GetSessionIndex(AssertionXmlElement.OwnerDocument);
+                HttpContext.Current.User = principal ;
 
-                HttpContext.Current.Application["Saml2Subject"] = GetSaml2Subject(AssertionXmlElement.OwnerDocument);
-
-                HttpContext.Current.Application["claims"] = claims;
                 response.Redirect("http://localhost:49763/sample/Default");
 
             }

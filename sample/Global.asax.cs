@@ -22,21 +22,19 @@ namespace sample
             SSOAgentAppContextListener appContextListener = new SSOAgentAppContextListener();
             appContextListener.InitializePropertySet(propertyCollection);
 
-
-            //HttpContext.Current.SetSessionStateBehavior(SessionStateBehavior.Required);
-
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
-            BundleConfig.RegisterBundles(BundleTable.Bundles);
-
- 
+            BundleConfig.RegisterBundles(BundleTable.Bundles); 
         }
 
-      
-        protected void Application_PostAuthorizeRequest()
-        {          
-                HttpContext.Current.SetSessionStateBehavior(SessionStateBehavior.Required);         
+        public override void Init()
+        {
+            this.MapRequestHandler += MvcApplication_MapRequest;
+            base.Init();
         }
-
+        void MvcApplication_MapRequest(object sender, EventArgs e)
+        {
+            HttpContext.Current.SetSessionStateBehavior(SessionStateBehavior.Required);
+        }
     }
 }

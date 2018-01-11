@@ -5,6 +5,7 @@ using org.wso2.carbon.identity.agent.saml;
 using org.wso2.carbon.identity.agent.util;
 using System;
 using System.Web;
+using System.Web.UI;
 
 namespace org.wso2.carbon.identity.agent
 {
@@ -13,7 +14,10 @@ namespace org.wso2.carbon.identity.agent
         public void Init(HttpApplication context)
         {
             // Registering event handlers
-            context.BeginRequest += OnApplicationBeginRequest;
+            /* context.BeginRequest += OnApplicationBeginRequest;
+               context.PostAcquireRequestState += PostAcquireRequestState;
+            */
+            context.PostAcquireRequestState += OnApplicationBeginRequest;
         }
 
         private void OnApplicationBeginRequest(object sender, EventArgs e)
@@ -23,7 +27,7 @@ namespace org.wso2.carbon.identity.agent
 
             HttpApplication application = (HttpApplication)sender;
             HttpContext context = application.Context;
-
+       
             SSOAgentConfig ssoAgentConfig =  (SSOAgentConfig)HttpContext.Current.Application[SSOAgentConstants.CONFIG_BEAN_NAME];
             SSOAgentRequestResolver requestResolver = new SSOAgentRequestResolver(context.Request,ssoAgentConfig);
 
@@ -60,6 +64,14 @@ namespace org.wso2.carbon.identity.agent
                     samlSSOManager.SendPOSTRequest(context);
                 }
             }    
+        }
+
+        public void PostAcquireRequestState(object sender, EventArgs e)
+        {
+            HttpApplication application = ((HttpApplication)sender);
+            HttpContext context = application.Context;
+
+            context.Session.Add("preHandler","valueHere");
         }
 
         public void Dispose()

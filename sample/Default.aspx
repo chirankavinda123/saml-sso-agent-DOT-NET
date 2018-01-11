@@ -3,10 +3,10 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
     <div class="jumbotron">
-        <h1>Online Trip Guider</h1>
+        <h1>Online Trip Guider </h1>
         <p class="lead">This is a sample web app developed using ASp.NET to demostrate capabilities of .NET Agents for Identity Server.</p>
 
-        <% if (Claims != null)
+        <% if (Principal != null)
            {%>
                 <p><a href="samllogout" class="btn btn-primary btn-lg">Logout &raquo;</a></p>
         <% }

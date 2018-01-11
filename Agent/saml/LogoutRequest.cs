@@ -35,7 +35,7 @@ namespace Agent.saml
             x.Add(nameID);
             //end of nameid 
 
-            x.SetElementValue(Saml2Namespaces.Saml2P + "SessionIndex", HttpContext.Current.Application["SessionIndex"]);
+            x.SetElementValue(Saml2Namespaces.Saml2P + "SessionIndex", HttpContext.Current.Session["SessionIndex"]);
 
             return x.ToString();
         }
@@ -52,14 +52,14 @@ namespace Agent.saml
             //end of issuer
 
             //nameID 
-            Saml2Subject subject = (Saml2Subject)HttpContext.Current.Application["Saml2Subject"];
+            Saml2Subject subject = (Saml2Subject)HttpContext.Current.Session["Saml2Subject"];
 
             XElement nameID = new XElement(Saml2Namespaces.Saml2 + "NameID",subject.NameId.Value);
             nameID.Add(new XAttribute("Format",subject.NameId.Format));
             x.Add(nameID);
             //end of nameid 
 
-            x.SetElementValue(Saml2Namespaces.Saml2P + "SessionIndex", HttpContext.Current.Application["SessionIndex"]);
+            x.SetElementValue(Saml2Namespaces.Saml2P + "SessionIndex", HttpContext.Current.Session["SessionIndex"]);
 
             //IF SIGNING IS ENABLED, THEN...
 
