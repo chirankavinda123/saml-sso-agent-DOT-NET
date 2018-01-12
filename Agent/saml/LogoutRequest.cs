@@ -26,19 +26,18 @@ namespace Agent.saml
             x.Add(base.ToXNodes());
 
             // Set issuer.
-            x.SetElementValue(Saml2Namespaces.Saml2 + "Issuer", "demo-sso-agent");
+            x.SetElementValue(Saml2Namespaces.Saml2 + "Issuer", Issuer.Id);
             // End of setting issuer.
 
-            //nameID 
+            // Setting name Identifier. 
             Saml2Subject subject = (Saml2Subject)HttpContext.Current.Session["Saml2Subject"];
 
             XElement nameID = new XElement(Saml2Namespaces.Saml2 + "NameID", subject.NameId.Value);
             nameID.Add(new XAttribute("Format", subject.NameId.Format));
             x.Add(nameID);
-            //end of nameid
+            // End of setting name Identifier.
 
             x.SetElementValue(Saml2Namespaces.Saml2P + "SessionIndex", HttpContext.Current.Session["SessionIndex"]);
-
             return x;
         }   
     }

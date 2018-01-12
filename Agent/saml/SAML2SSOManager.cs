@@ -101,7 +101,7 @@ namespace org.wso2.carbon.identity.agent.saml
                 DestinationUrl = new Uri(ssoAgentConfig.Saml2.IdPURL),
                 Issuer = new EntityId(ssoAgentConfig.Saml2.SPEntityId)
             };
-
+  
             string logoutRequestStr = null;
 
             if (ssoAgentConfig.Saml2.IsRequestSigned)
@@ -111,10 +111,7 @@ namespace org.wso2.carbon.identity.agent.saml
                 // Embed signature element.
                 logoutRequestStr = SSOAgentUtil.EmbedSignatureIntoAuthnRequest(logoutRequest.BuildRequest(), logoutRequest.Id.Value, cert);
             }
-            else
-            {
-                logoutRequestStr = logoutRequest.BuildRequest().ToString();
-            }
+            else logoutRequestStr = logoutRequest.BuildRequest().ToString();            
 
             WritePostDataToOutputStream(context.Response, PerformBase64Encoding(logoutRequestStr));            
         }
@@ -264,10 +261,12 @@ namespace org.wso2.carbon.identity.agent.saml
                 HttpContext.Current.Session["Saml2Subject"] = GetSaml2Subject(AssertionXmlElement.OwnerDocument);
                 HttpContext.Current.Session["claims"] = ProcessAttributeStatement(AssertionXmlElement.OwnerDocument);
 
+                /*
                 CustomPrincipal principal = new CustomPrincipal("admin");               
                 HttpContext.Current.User = principal ;
 
                 FormsAuthentication.SetAuthCookie("admin",false);
+                */
 
                 response.Redirect("http://localhost:49763/sample/Default");
 
@@ -358,7 +357,7 @@ namespace org.wso2.carbon.identity.agent.saml
                     XmlNodeList audiences = audienceRestriction.SelectNodes("/saml2:AudienceRestriction/saml2:Audience",nsManager);
                     foreach (XmlNode audience in audiences)
                     {
-                        if ("demo-sso-agent".Equals(audience.InnerText))
+                        if ((ssoAgentConfig.Saml2.SPEntityId).Equals(audience.InnerText))
                         {
                             expectedAudiencefound = true;
                             break;
@@ -367,7 +366,7 @@ namespace org.wso2.carbon.identity.agent.saml
                 }
                 if (expectedAudiencefound)
                 {
-                    throw new SSOAgentException("Audience restriction valudation failed for the SAML Assertion.");
+                    throw new SSOAgentException("Audience restriction validation failed for the SAML Assertion.");
                 }
             }
             else
@@ -460,7 +459,6 @@ namespace org.wso2.carbon.identity.agent.saml
             string base64 = Convert.ToBase64String(bytes);
             return base64;           
         }
-
 
     }
 }

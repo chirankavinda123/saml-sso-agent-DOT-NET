@@ -66,8 +66,8 @@
     <Compile Include="saml\SAML2SSOManager.cs" />
     <Compile Include="security\Saml2SSOSecurityTokenResolver.cs" />
     <Compile Include="SessionHandler.cs" />
-    <Compile Include="SSOAgentAppContextListener.cs" />
     <Compile Include="SSOAgentConfig.cs" />
+    <Compile Include="SSOAgentPropertyInitializer.cs" />
     <Compile Include="util\SSOAgentConstants.cs" />
     <Compile Include="util\SSOAgentRequestResolver.cs" />
     <Compile Include="util\SSOAgentUtil.cs" />

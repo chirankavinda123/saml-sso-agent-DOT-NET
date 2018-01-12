@@ -13,21 +13,20 @@ namespace org.wso2.carbon.identity.agent
     {
         public void Init(HttpApplication context)
         {
-            // Registering event handlers
-            /* context.BeginRequest += OnApplicationBeginRequest;
-               context.PostAcquireRequestState += PostAcquireRequestState;
-            */
-            context.PostAcquireRequestState += OnApplicationBeginRequest;
+            context.PostAcquireRequestState += PostAcquireRequestState;
+
+            SSOAgentPropertyInitializer ssoPropertyInitializer = new SSOAgentPropertyInitializer();
+            ssoPropertyInitializer.InitializePropertySet();
         }
 
-        private void OnApplicationBeginRequest(object sender, EventArgs e)
+        private void PostAcquireRequestState(object sender, EventArgs e)
         {
             Logger logger = LogManager.GetCurrentClassLogger();
             logger.Info("application begin request");
 
             HttpApplication application = (HttpApplication)sender;
             HttpContext context = application.Context;
-       
+
             SSOAgentConfig ssoAgentConfig =  (SSOAgentConfig)HttpContext.Current.Application[SSOAgentConstants.CONFIG_BEAN_NAME];
             SSOAgentRequestResolver requestResolver = new SSOAgentRequestResolver(context.Request,ssoAgentConfig);
 

@@ -15,13 +15,7 @@ namespace sample
     public class Global : HttpApplication
     {
         void Application_Start(object sender, EventArgs e)
-        {
-            
-            SettingsPropertyCollection propertyCollection = Properties.Settings.Default.Properties;
-
-            SSOAgentAppContextListener appContextListener = new SSOAgentAppContextListener();
-            appContextListener.InitializePropertySet(propertyCollection);
-
+        {            
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles); 
@@ -29,7 +23,7 @@ namespace sample
 
         public override void Init()
         {
-            this.MapRequestHandler += MvcApplication_MapRequest;
+            MapRequestHandler += MvcApplication_MapRequest;
             base.Init();
         }
         void MvcApplication_MapRequest(object sender, EventArgs e)
