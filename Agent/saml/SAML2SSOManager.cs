@@ -22,8 +22,7 @@ using Agent.util;
 using Agent.exceptions;
 using Agent.saml;
 using Agent.Security;
-using System.Web.UI;
-using System.Security.Principal;
+using System.Web.Security;
 
 namespace org.wso2.carbon.identity.agent.saml
 {
@@ -36,19 +35,22 @@ namespace org.wso2.carbon.identity.agent.saml
             this.ssoAgentConfig = ssoAgentConfig;
         }
 
-        public String BuildRedirectRequest()
+        public String BuildRedirectBindingLoginRequest()
         {
             AuthenticationRequest samlRequest = new AuthenticationRequest();
             InitializeAuthnRequestProperties(samlRequest);
 
-            //buid saml redirect request
-            String samlRequestString = "SAMLRequest=" + EncodeSamlAuthnRequest(samlRequest.BuildAuthnRequest().ToString());
+            // Buid basic saml request.
+            String samlRequestString = "SAMLRequest=" + EncodeSamlRequest(samlRequest.BuildAuthnRequest().ToString());
 
-            // if (reqSigning Enabled) { }
-            X509Certificate2 cert = LoadX509Certificate();
-            String signedRequest = DoSignRedirectRequest(samlRequestString, cert);
+            if (ssoAgentConfig.Saml2.IsRequestSigned)
+            {
+                X509Certificate2 cert = LoadX509Certificate();
+                String signedRequest = DoSignRedirectRequest(samlRequestString, cert);
 
-            return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", signedRequest);  
+                return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", signedRequest);
+            }
+            else return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", samlRequestString);
         }
 
         private void InitializeAuthnRequestProperties(AuthenticationRequest samlRequest)
@@ -92,7 +94,7 @@ namespace org.wso2.carbon.identity.agent.saml
             return cert;
         }
 
-        public void SendPOSTLogoutRequest(HttpContext context)
+        public void SendPostBindingLogoutRequest(HttpContext context)
         {
             LogoutRequest logoutRequest = new LogoutRequest
             {
@@ -100,66 +102,44 @@ namespace org.wso2.carbon.identity.agent.saml
                 Issuer = new EntityId(ssoAgentConfig.Saml2.SPEntityId)
             };
 
-            //this is not USED ........ Check
-            Saml2NameIdentifier nameID = new Saml2NameIdentifier("admin", new Uri("urn:oasis:names:tc:SAML:2.0:nameid-format:entity"));
-            logoutRequest.NameId = nameID;
-            
-            X509Certificate2 cert = LoadX509Certificate();
+            string logoutRequestStr = null;
 
-            context.Response.Clear();
-            context.Response.ContentType = "text/html";
-
-            StringBuilder sb = new StringBuilder();
-            sb.Append("<html>");
-            sb.AppendFormat(@"<body onload='document.forms[""form""].submit()'><p>you are redirecting to IDP ...</p>");
-            sb.AppendFormat("<form name='form' action='{0}' method='post'>", ssoAgentConfig.Saml2.IdPURL);
-            sb.AppendFormat("<input type='hidden' name='SAMLRequest' value='{0}'>", PerformBase64Encoding(logoutRequest.BuildPOSTLogoutRequest(cert)));
-            sb.Append("</form>");
-            sb.Append("</body>");
-            sb.Append("</html>");
-
-            context.Response.Write(sb.ToString());
-            context.Response.End();
-        }
-
-        public String BuildLogoutRequest()
-        {
-            LogoutRequest logoutRequest = new LogoutRequest
+            if (ssoAgentConfig.Saml2.IsRequestSigned)
             {
-                DestinationUrl = new Uri(ssoAgentConfig.Saml2.IdPURL),
-                Issuer = new EntityId(ssoAgentConfig.Saml2.SPEntityId)
-            };
-
-            Saml2NameIdentifier nameID = new Saml2NameIdentifier("admin",new Uri("urn:oasis:names:tc:SAML:2.0:nameid-format:entity"));
-            logoutRequest.NameId = nameID;
-
-            //sign request
-            X509Store store = new X509Store(StoreLocation.LocalMachine);
-            store.Open(OpenFlags.ReadOnly);
-
-            X509Certificate2Collection certificatesCollection = store.Certificates;
-
-            X509Certificate2 cert = null;
-            RSACryptoServiceProvider cryptKey = null;
-            foreach (X509Certificate2 ce in certificatesCollection)
+                X509Certificate2 cert = LoadX509Certificate();
+                
+                // Embed signature element.
+                logoutRequestStr = SSOAgentUtil.EmbedSignatureIntoAuthnRequest(logoutRequest.BuildRequest(), logoutRequest.Id.Value, cert);
+            }
+            else
             {
-                if (ce.FriendlyName.Equals("wso2carbon") && ce.HasPrivateKey)
-                {
-                    cryptKey = (RSACryptoServiceProvider)ce.PrivateKey;
-                    cert = new X509Certificate2(ce);
-                }
+                logoutRequestStr = logoutRequest.BuildRequest().ToString();
             }
 
-            //buid saml redirect request
-            String samlRequestString = "SAMLRequest=" + EncodeSamlAuthnRequest(logoutRequest.BuildRedirectLogoutRequest());
-
-            String signedReq = DoSignRedirectRequest(samlRequestString, cert);
-
-            //finally redirect http-redirect binding
-            return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", signedReq);
+            WritePostDataToOutputStream(context.Response, PerformBase64Encoding(logoutRequestStr));            
         }
 
-        public void SendPOSTRequest(HttpContext context)
+        public string BuildRedirectBindingLogoutRequest()
+        {
+            LogoutRequest logoutRequest = new LogoutRequest
+            {
+                DestinationUrl = new Uri(ssoAgentConfig.Saml2.IdPURL),
+                Issuer = new EntityId(ssoAgentConfig.Saml2.SPEntityId)
+            };
+
+            string samlRequestString = "SAMLRequest=" + EncodeSamlRequest(logoutRequest.BuildRequest().ToString());
+
+            if (ssoAgentConfig.Saml2.IsRequestSigned)
+            {
+                X509Certificate2 cert = LoadX509Certificate();
+                string signedReq = DoSignRedirectRequest(samlRequestString, cert);
+
+                return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", signedReq);
+            }
+            else return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", samlRequestString);
+        }
+
+        public void SendPostBindingLoginRequest(HttpContext context)
         {
             AuthenticationRequest samlRequest = new AuthenticationRequest();
             InitializeAuthnRequestProperties(samlRequest);
@@ -169,28 +149,30 @@ namespace org.wso2.carbon.identity.agent.saml
             {
                 X509Certificate2 cert = LoadX509Certificate();
 
-                //embed signature element
+                // Embed signature element.
                 authnRequest = SSOAgentUtil.EmbedSignatureIntoAuthnRequest(samlRequest.BuildAuthnRequest(), samlRequest.Id.Value, cert);
             }
-            else
-            {
-                authnRequest = samlRequest.BuildAuthnRequest().ToString();
-            }
+            else authnRequest = samlRequest.BuildAuthnRequest().ToString();
 
-            context.Response.Clear();
-            context.Response.ContentType = "text/html";
+            WritePostDataToOutputStream(context.Response, PerformBase64Encoding(authnRequest));            
+        }
+
+        private void WritePostDataToOutputStream(HttpResponse response, string samlRequest)
+        {
+            response.Clear();
+            response.ContentType = "text/html";
             StringBuilder sb = new StringBuilder();
             sb.Append("<html>");
             sb.AppendFormat(@"<body onload='document.forms[""form""].submit()'>");
             sb.AppendFormat("<p>Now you are being redirected to IDP. If the redirection fails, click the POST button below.</p></n>");
             sb.AppendFormat("<form name='form' action='{0}' method='post'>", ssoAgentConfig.Saml2.IdPURL);
             sb.AppendFormat("<button type='submit'>POST</button>");
-            sb.AppendFormat("<input type='hidden' name='SAMLRequest' value='{0}'>", PerformBase64Encoding(authnRequest));
+            sb.AppendFormat("<input type='hidden' name='SAMLRequest' value='{0}'>", samlRequest);
             sb.Append("</form>");
             sb.Append("</body>");
-            sb.Append("</html>");            
-            context.Response.Write(sb.ToString());
-            context.Response.End();
+            sb.Append("</html>");
+            response.Write(sb.ToString());
+            response.End();
         }
 
         public void ProcessSAMLResponse(HttpRequest request,HttpResponse response)
@@ -277,18 +259,15 @@ namespace org.wso2.carbon.identity.agent.saml
                 ValidateAssertionValidityPeriod(AssertionXmlElement);
 
                 ValidateAudienceRestriction(AssertionXmlElement.OwnerDocument);
-             
-                Dictionary<String, String> claims = ProcessAttributeStatement(AssertionXmlElement.OwnerDocument);
 
                 HttpContext.Current.Session["SessionIndex"] = GetSessionIndex(AssertionXmlElement.OwnerDocument);
-
                 HttpContext.Current.Session["Saml2Subject"] = GetSaml2Subject(AssertionXmlElement.OwnerDocument);
+                HttpContext.Current.Session["claims"] = ProcessAttributeStatement(AssertionXmlElement.OwnerDocument);
 
-                HttpContext.Current.Session["claims"] = claims;
-
-                CustomPrincipal principal = new CustomPrincipal("admin");
-                
+                CustomPrincipal principal = new CustomPrincipal("admin");               
                 HttpContext.Current.User = principal ;
+
+                FormsAuthentication.SetAuthCookie("admin",false);
 
                 response.Redirect("http://localhost:49763/sample/Default");
 
@@ -461,7 +440,7 @@ namespace org.wso2.carbon.identity.agent.saml
             return String.Concat(sigAlgAdded, "&Signature=", HttpUtility.UrlEncode(base64Str));
         }
 
-        public static string EncodeSamlAuthnRequest(String authnRequest)
+        public static string EncodeSamlRequest(String authnRequest)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(authnRequest);
             using (var output = new MemoryStream())

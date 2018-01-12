@@ -17,13 +17,6 @@ namespace sample
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            HttpApplication application = (HttpApplication)sender;
-
-            if (application.Context.User != null)
-            {
-                Principal = application.Context.User;
-            }
-
             Claims = (Dictionary<String, String>)HttpContext.Current.Session["claims"];
         }
     }

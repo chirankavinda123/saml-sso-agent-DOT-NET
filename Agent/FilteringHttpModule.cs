@@ -36,11 +36,11 @@ namespace org.wso2.carbon.identity.agent
 
                 if (ssoAgentConfig.Saml2.HttpBinding == SSOAgentConstants.SAML2SSO.SAML2_REDIRECT_BINDING_URI)
                 {
-                    context.Response.Redirect(samlSSOManager.BuildLogoutRequest());
+                    context.Response.Redirect(samlSSOManager.BuildRedirectBindingLogoutRequest());
                 }
                 else
                 {
-                    samlSSOManager.SendPOSTLogoutRequest(context);
+                    samlSSOManager.SendPostBindingLogoutRequest(context);
                 }                   
             }
 
@@ -57,21 +57,13 @@ namespace org.wso2.carbon.identity.agent
                 
                 if (ssoAgentConfig.Saml2.HttpBinding == SSOAgentConstants.SAML2SSO.SAML2_REDIRECT_BINDING_URI)
                 {
-                    context.Response.Redirect(samlSSOManager.BuildRedirectRequest());
+                    context.Response.Redirect(samlSSOManager.BuildRedirectBindingLoginRequest());
                 }
                 else
                 {
-                    samlSSOManager.SendPOSTRequest(context);
+                    samlSSOManager.SendPostBindingLoginRequest(context);
                 }
             }    
-        }
-
-        public void PostAcquireRequestState(object sender, EventArgs e)
-        {
-            HttpApplication application = ((HttpApplication)sender);
-            HttpContext context = application.Context;
-
-            context.Session.Add("preHandler","valueHere");
         }
 
         public void Dispose()
