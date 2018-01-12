@@ -1,18 +1,7 @@
-﻿using Agent.util;
-using Kentor.AuthServices;
+﻿using Kentor.AuthServices;
 using Kentor.AuthServices.Saml2P;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
-using System.Xml;
 using System.Xml.Linq;
 
 namespace Agent.saml

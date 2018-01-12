@@ -5,7 +5,6 @@ using org.wso2.carbon.identity.agent.saml;
 using org.wso2.carbon.identity.agent.util;
 using System;
 using System.Web;
-using System.Web.UI;
 
 namespace org.wso2.carbon.identity.agent
 {
