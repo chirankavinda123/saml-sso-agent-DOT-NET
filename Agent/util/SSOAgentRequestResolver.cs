@@ -15,16 +15,21 @@ namespace org.wso2.carbon.identity.agent.util
             this.ssoAgentConfig = ssoAgentConfig;
         }
 
-        public Boolean isSAML2SSOURL() {
+        public bool IsSLORequest()
+        {
+            return  request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ] != null;
+        }
+
+        public bool IsSAML2SSOURL() {
             return request.RawUrl.EndsWith("/samlsso");
         }
 
-        public bool isSAML2SSOResponse(HttpRequest request)
+        public bool IsSAML2SSOResponse(HttpRequest request)
         {
             return request.Params["SAMLResponse"] != null;                
         }
 
-        public bool isSLOURL()
+        public bool IsSLOURL()
         {
             //ssoAgentConfig.getSAML2().isSLOEnabled() &&
 

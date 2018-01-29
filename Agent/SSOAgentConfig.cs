@@ -52,6 +52,7 @@ namespace Agent
             Saml2.PostBindingRequestHTMLPayload = ssoProperties[SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_PAYLOAD];
             Saml2.TimeStampSkewInSeconds = ssoProperties[SSOAgentConstants.SSOAgentConfig.SAML2.TIME_STAMP_SKEW];
 
+            Saml2.PostLogoutRedirectURL = ssoProperties[SSOAgentConstants.SSOAgentConfig.SAML2.POST_LOGOUT_REDIRECT_URL];
         }
     }
 
@@ -394,6 +395,11 @@ namespace Agent
                     timeStampSkewInSeconds = 300;
                 }
             }
+        }
+
+        public string PostLogoutRedirectURL
+        {
+            get;set;
         }
     }
 }

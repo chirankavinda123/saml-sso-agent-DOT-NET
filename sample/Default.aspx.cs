@@ -13,11 +13,10 @@ namespace sample
     {
         public Dictionary<String, String> Claims { get; set; }
 
-        public IPrincipal Principal { get; set; } = null;
-
         protected void Page_Load(object sender, EventArgs e)
         {
             Claims = (Dictionary<String, String>)HttpContext.Current.Session["claims"];
+            //this.rpIFrame.Attributes.Add("src", "SLOManagerIFrame.aspx");
         }
     }
 }

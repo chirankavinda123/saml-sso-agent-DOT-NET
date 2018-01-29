@@ -23,6 +23,7 @@ using Agent.exceptions;
 using Agent.saml;
 using Agent.Security;
 using System.Web.Security;
+using System.Net;
 
 namespace org.wso2.carbon.identity.agent.saml
 {
@@ -51,6 +52,36 @@ namespace org.wso2.carbon.identity.agent.saml
                 return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", signedRequest);
             }
             else return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", samlRequestString);
+        }
+
+        internal void SendRedirectBindingLogoutResponse(HttpContext context)
+        {
+            Saml2LogoutResponse logoutResponse = new Saml2LogoutResponse(Saml2StatusCode.Success)
+            {
+                Issuer = new EntityId(ssoAgentConfig.Saml2.SPEntityId),
+                DestinationUrl = new Uri(ssoAgentConfig.Saml2.IdPURL),
+            };
+
+            /*
+            string samlRequestString = "SAMLResponse=" + EncodeSamlRequest(logoutResponse.ToXml());
+           
+          
+            X509Certificate2 cert = LoadX509Certificate();
+            string signedReq = DoSignRedirectRequest(samlRequestString, cert);
+            
+            
+
+            HttpWebRequest request =(HttpWebRequest)WebRequest.Create(ssoAgentConfig.Saml2.IdPURL);
+            request.Method = "POST";
+            
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            */
+
+            context.Response.Clear();
+            context.Response.StatusCode = 404;
+            context.Response.Redirect(ssoAgentConfig.Saml2.IdPURL);
+       
+
         }
 
         private void InitializeAuthnRequestProperties(AuthenticationRequest samlRequest)
@@ -184,12 +215,13 @@ namespace org.wso2.carbon.identity.agent.saml
                 XmlElement element = xmlDoc.DocumentElement;
                 if (element.LocalName.Equals("LogoutResponse"))
                 {
-                    //this is a logout response
-                    HttpContext.Current.Session.RemoveAll();
-                    response.Redirect("http://localhost:49763/sample/Default");
+                    // This is a logout response.
+                    HttpContext.Current.Session.Abandon();
+                    response.Redirect(ssoAgentConfig.Saml2.PostLogoutRedirectURL);
                 }
                 else {                   
                     ProcessSSOResponse(request,response);
+                    response.Redirect(HttpContext.Current.Session["loginRequestedFrom"].ToString());
                 }
             }
         }
@@ -267,9 +299,6 @@ namespace org.wso2.carbon.identity.agent.saml
 
                 FormsAuthentication.SetAuthCookie("admin",false);
                 */
-
-                response.Redirect("http://localhost:49763/sample/Default");
-
             }
         }
 

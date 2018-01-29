@@ -66,7 +66,7 @@ namespace Agent.util
                 public static readonly string POST_BINDING_REQUEST_HTML_FILE_PATH = "PostBindingRequestHTMLFilePath";
                 public static readonly string SIGNATURE_VALIDATOR = "SignatureValidatorImplClass";
                 public static readonly string TIME_STAMP_SKEW = "TimestampSkew";
-
+                public static readonly string POST_LOGOUT_REDIRECT_URL = "PostLogoutRedirectUrl";
             }
 
             public static class SSL

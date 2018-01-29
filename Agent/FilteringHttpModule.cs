@@ -1,5 +1,6 @@
 ﻿using Agent;
 using Agent.util;
+using Microsoft.AspNet.SignalR;
 using NLog;
 using org.wso2.carbon.identity.agent.saml;
 using org.wso2.carbon.identity.agent.util;
@@ -20,6 +21,9 @@ namespace org.wso2.carbon.identity.agent
 
         private void PostAcquireRequestState(object sender, EventArgs e)
         {
+            //var hubContext = GlobalHost.ConnectionManager.GetHubContext<SignalRHub>();
+            // hubContext.Clients.All.onHitRecorded("value is original ");
+
             Logger logger = LogManager.GetCurrentClassLogger();
             logger.Info("application begin request");
 
@@ -29,7 +33,21 @@ namespace org.wso2.carbon.identity.agent
             SSOAgentConfig ssoAgentConfig =  (SSOAgentConfig)HttpContext.Current.Application[SSOAgentConstants.CONFIG_BEAN_NAME];
             SSOAgentRequestResolver requestResolver = new SSOAgentRequestResolver(context.Request,ssoAgentConfig);
 
-            if (requestResolver.isSLOURL()) {
+            string acs;
+            // Single logout request, as a result of some other application.
+            if (context.Request.Params["SAMLRequest"] != null)
+            {
+                acs = ssoAgentConfig.Saml2.ACSURL;
+                HttpContext.Current.Session.Abandon();
+
+                //context.Response.Clear();
+                context.Response.StatusCode = 200;
+                context.Response.End();
+                return;
+            }
+           
+            // Requesting log out by the currently running application.
+            else if (requestResolver.IsSLOURL()) {
                 SAML2SSOManager samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
 
                 if (ssoAgentConfig.Saml2.HttpBinding == SSOAgentConstants.SAML2SSO.SAML2_REDIRECT_BINDING_URI)
@@ -42,15 +60,17 @@ namespace org.wso2.carbon.identity.agent
                 }                   
             }
 
-            //Incomplete block
-            else if (requestResolver.isSAML2SSOResponse(context.Request))
+            // Requests with SAMLResponse param is handled by below block.
+            else if (requestResolver.IsSAML2SSOResponse(context.Request))
             {
                 SAML2SSOManager samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
                 samlSSOManager.ProcessSAMLResponse(context.Request, context.Response);
             }
 
-            else if (requestResolver.isSAML2SSOURL())
+            else if (requestResolver.IsSAML2SSOURL())
             {
+                HttpContext.Current.Session["loginRequestedFrom"] = GetLoginRequstedLocation(context.Request);
+
                 SAML2SSOManager samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
                 
                 if (ssoAgentConfig.Saml2.HttpBinding == SSOAgentConstants.SAML2SSO.SAML2_REDIRECT_BINDING_URI)
@@ -61,7 +81,23 @@ namespace org.wso2.carbon.identity.agent
                 {
                     samlSSOManager.SendPostBindingLoginRequest(context);
                 }
-            }    
+            }
+        }
+
+        private string GetLoginRequstedLocation(HttpRequest request)
+        {
+            var uri = new Uri(request.Url.AbsoluteUri);
+
+            var requestedLocation = string.Format("{0}://{1}", uri.Scheme, uri.Authority);
+
+            for (int i = 0; i < uri.Segments.Length - 1; i++)
+            {
+                requestedLocation += uri.Segments[i];
+            }
+
+            // Remove trailing '/'.
+            requestedLocation = requestedLocation.Trim("/".ToCharArray());
+            return requestedLocation;
         }
 
         public void Dispose()

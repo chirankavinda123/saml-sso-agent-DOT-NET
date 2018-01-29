@@ -2090,9 +2090,21 @@ fieldset[disabled] .btn-default.active {
 }
 
 .btn-primary {
-  color: #ffffff;
-  background-color: #428bca;
-  border-color: #357ebd;
+    color: #705135;
+    border-color: #705135;
+    width: 170px;
+    height: 59px;
+}
+
+.btn-font {
+    font-family: Courier New;
+    font-size: 27px;
+}
+
+.center-elem {
+    margin: auto;
+    width: 60%;
+    padding: 144px;
 }
 
 .btn-primary:hover,
@@ -2101,7 +2113,7 @@ fieldset[disabled] .btn-default.active {
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
   color: #ffffff;
-  background-color: #3276b1;
+  background-color: black;
   border-color: #285e8e;
 }
 

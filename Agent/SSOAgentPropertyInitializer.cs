@@ -57,7 +57,7 @@ namespace Agent
             ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.RELAY_STATE,null);
             ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_PAYLOAD,null);
             ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.TIME_STAMP_SKEW,"300");
-
+            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.POST_LOGOUT_REDIRECT_URL,null);
         }
     }
 }
