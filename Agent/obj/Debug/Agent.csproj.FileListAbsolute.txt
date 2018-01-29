@@ -22,7 +22,6 @@ C:\Users\chira\source\repos\sample\Agent\bin\Debug\Newtonsoft.Json.xml
 C:\Users\chira\source\repos\sample\Agent\bin\Debug\NLog.xml
 C:\Users\chira\source\repos\sample\Agent\bin\Debug\Serilog.xml
 C:\Users\chira\source\repos\sample\Agent\bin\Debug\Serilog.Sinks.Console.xml
-C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.csprojResolveAssemblyReference.cache
 C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.csproj.CoreCompileInputs.cache
 C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.dll
 C:\Users\chira\source\repos\sample\Agent\obj\Debug\Agent.pdb

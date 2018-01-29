@@ -36,7 +36,7 @@
 
             function PerformRedirect() {
                 //xhr.abort();
-                window.location.href = "https://www.google.com";
+                window.top.location.href = "http://localhost:60662/sample2/Default";
             }
 
         </script>

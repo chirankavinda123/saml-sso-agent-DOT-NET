@@ -3,7 +3,7 @@
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
     <div class="jumbotron">
-        <h1 style="color: #FFDB9F;text-shadow: 3px 6px 4px black;font-weight: bold;">Online Music Store</h1>
+        <h1 align="center" style="color: #FFDB9F;text-shadow: 3px 6px 4px black;font-weight: bold;">Online Music Store</h1>
         <!-- p class="lead">Description of web site</p -->
         
          <% 
@@ -11,12 +11,12 @@
 
              if (Claims == null)
              { %>
-               <p style="margin: 0 auto;width: 321px;"><a href="samlsso" class="btn btn-primary btn-lg" style="background-color:transparent;background-color: transparent;
+               <p style="margin: 0 auto;width: 321px;text-align:center;"><a href="samlsso" class="btn btn-primary btn-lg" style="background-color:transparent;background-color: transparent;
             height: 96px;width:238px;font-size: 35px;padding-top:20px;">Sign in &raquo;</a></p> 
          <% }
             else
             { %>
-               <p style="margin: 0 auto;width: 321px;"><a href="samllogout" class="btn btn-primary btn-lg" style="background-color:transparent;background-color: transparent;
+               <p style="margin: 0 auto;width: 321px;text-align:center;"><a href="samllogout" class="btn btn-primary btn-lg" style="background-color:transparent;background-color: transparent;
             height: 96px;width:238px;font-size: 35px;padding-top:20px;">Sign out &raquo;</a></p> 
          <% } %>
     </div>
@@ -41,4 +41,5 @@
             </div>
         </div>
     <% } %>
+    <IFRAME id="rpIFrame" frameborder="0" width="0" height="0" runat="server"></IFRAME>
 </asp:Content>
