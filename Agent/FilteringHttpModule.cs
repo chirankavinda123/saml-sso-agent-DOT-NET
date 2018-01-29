@@ -33,14 +33,14 @@ namespace org.wso2.carbon.identity.agent
             SSOAgentConfig ssoAgentConfig =  (SSOAgentConfig)HttpContext.Current.Application[SSOAgentConstants.CONFIG_BEAN_NAME];
             SSOAgentRequestResolver requestResolver = new SSOAgentRequestResolver(context.Request,ssoAgentConfig);
 
-            string acs;
+            string sid;
             // Single logout request, as a result of some other application.
             if (context.Request.Params["SAMLRequest"] != null)
             {
-                acs = ssoAgentConfig.Saml2.ACSURL;
-                HttpContext.Current.Session.Abandon();
-
-                //context.Response.Clear();
+                SAML2SSOManager samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
+                samlSSOManager.ProcessSAMLRequest(context);
+                
+                context.Response.Clear();
                 context.Response.StatusCode = 200;
                 context.Response.End();
                 return;

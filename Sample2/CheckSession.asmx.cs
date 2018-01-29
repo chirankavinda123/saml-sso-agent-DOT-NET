@@ -3,38 +3,25 @@
 namespace Sample2
 {
     /// <summary>
-    /// Summary description for CheckSession
+    /// This is used to check if SLO has occured for the current app.
     /// </summary>
     [WebService(Namespace = "http://tempuri.org/")]
     [WebServiceBinding(ConformsTo = WsiProfiles.BasicProfile1_1)]
-    [System.ComponentModel.ToolboxItem(false)]
-    // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
+    [System.ComponentModel.ToolboxItem(false)] 
     [System.Web.Script.Services.ScriptService]
     public class CheckSession : System.Web.Services.WebService
     {
-
-        [WebMethod]
-        public string HelloWorld()
-        {
-            return "Hello World";
-        }
-
         [WebMethod(EnableSession = true)]
         public string GetSessionValue()
         {
-            string sessionVal = string.Empty;
-
-
-            if (Session["claims"] == null)
-            {
-                sessionVal = "false";
+            if (Application["sloOccured"] != null) {
+                if (Session["SessionIndex"].ToString() == Application["sloOccured"].ToString()) {
+                    Session.Abandon();
+                    return "true";
+                }
+                return "[slo] unintended SP.";
             }
-            else
-            {
-                sessionVal = "true";
-            }
-
-            return sessionVal;
+            return "[slo] null";  
         }
 
         [WebMethod(EnableSession = true)]

@@ -67,23 +67,5 @@
             </footer>
         </div>
     </form>
-
-    <script src="Scripts/jquery-1.10.2.js"></script>
-    <script src="Scripts/jquery.signalR-2.2.2.js"></script>
-    <script type="text/javascript">
-        $(function () {
-            var con = $.hubConnection();
-            var hub = con.createHubProxy('hitCounter');
-            hub.on('onSingleLogout', function (i) {
-                //window.location.href = "Contact.aspx";
-                console.log("hitting properly");
-            });
-
-            con.start(function () {
-                hub.invoke();
-            });
-            
-        })
-    </script>
 </body>
 </html>

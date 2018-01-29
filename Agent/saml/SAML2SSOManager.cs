@@ -54,6 +54,31 @@ namespace org.wso2.carbon.identity.agent.saml
             else return string.Concat(ssoAgentConfig.Saml2.IdPURL, "?", samlRequestString);
         }
 
+        internal void ProcessSAMLRequest(HttpContext context)
+        {
+            string samlRequest = context.Request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ];
+            XmlElement sessionIndexElement = null;
+
+            if (samlRequest != null)
+            {
+                string decodedSAMLRequest = Encoding.UTF8.GetString(Convert.FromBase64String(samlRequest));
+
+                XmlDocument xmlDoc = new XmlDocument { PreserveWhitespace = true };
+                xmlDoc.LoadXml(decodedSAMLRequest);
+
+                XmlNamespaceManager nsManager = new XmlNamespaceManager(xmlDoc.NameTable);
+                nsManager.AddNamespace("saml2p", "urn:oasis:names:tc:SAML:2.0:protocol");
+
+                if (xmlDoc.DocumentElement.SelectSingleNode("saml2p:SessionIndex", nsManager) != null)
+                {
+                    sessionIndexElement = (XmlElement)xmlDoc.DocumentElement.SelectSingleNode("saml2p:SessionIndex", nsManager);
+                }
+
+                context.Application["sloOccured"] = sessionIndexElement.InnerText;
+
+            }
+        }
+
         internal void SendRedirectBindingLogoutResponse(HttpContext context)
         {
             Saml2LogoutResponse logoutResponse = new Saml2LogoutResponse(Saml2StatusCode.Success)
@@ -205,11 +230,11 @@ namespace org.wso2.carbon.identity.agent.saml
 
         public void ProcessSAMLResponse(HttpRequest request,HttpResponse response)
         {
-            String samlResponse = request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP];
+            string samlResponse = request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP];
             
             if (samlResponse != null)
             {
-                String decodedResponse = Encoding.UTF8.GetString(Convert.FromBase64String(samlResponse));
+                string decodedResponse = Encoding.UTF8.GetString(Convert.FromBase64String(samlResponse));
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(decodedResponse);
                 XmlElement element = xmlDoc.DocumentElement;
@@ -228,12 +253,12 @@ namespace org.wso2.carbon.identity.agent.saml
 
         private void ProcessSSOResponse(HttpRequest request,HttpResponse response)
         {
-            String samlResponseString = request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP];
+            string samlResponseString = request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP];
             XmlElement AssertionXmlElement = null;
 
             if (samlResponseString != null)
             {
-                String decodedResponse = Encoding.UTF8.GetString(Convert.FromBase64String(samlResponseString));
+                string decodedResponse = Encoding.UTF8.GetString(Convert.FromBase64String(samlResponseString));
                
                 XmlDocument xmlDoc = new XmlDocument { PreserveWhitespace = true };
                 xmlDoc.LoadXml(decodedResponse);
@@ -327,8 +352,8 @@ namespace org.wso2.carbon.identity.agent.saml
 
             foreach (XmlNode attributeNode in attributeNodesList)
             {
-                String attributeName = attributeNode.Attributes["Name"].Value;
-                String attributeValue = attributeNode.FirstChild.InnerText;
+                string attributeName = attributeNode.Attributes["Name"].Value;
+                string attributeValue = attributeNode.FirstChild.InnerText;
                 claimsDictionary[attributeName] = attributeValue;
             }
 
