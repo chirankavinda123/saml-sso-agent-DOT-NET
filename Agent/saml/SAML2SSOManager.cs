@@ -22,8 +22,6 @@ using Agent.util;
 using Agent.exceptions;
 using Agent.saml;
 using Agent.Security;
-using System.Web.Security;
-using System.Net;
 
 namespace org.wso2.carbon.identity.agent.saml
 {
@@ -75,38 +73,7 @@ namespace org.wso2.carbon.identity.agent.saml
                 }
 
                 context.Application["sloOccured"] = sessionIndexElement.InnerText;
-
             }
-        }
-
-        internal void SendRedirectBindingLogoutResponse(HttpContext context)
-        {
-            Saml2LogoutResponse logoutResponse = new Saml2LogoutResponse(Saml2StatusCode.Success)
-            {
-                Issuer = new EntityId(ssoAgentConfig.Saml2.SPEntityId),
-                DestinationUrl = new Uri(ssoAgentConfig.Saml2.IdPURL),
-            };
-
-            /*
-            string samlRequestString = "SAMLResponse=" + EncodeSamlRequest(logoutResponse.ToXml());
-           
-          
-            X509Certificate2 cert = LoadX509Certificate();
-            string signedReq = DoSignRedirectRequest(samlRequestString, cert);
-            
-            
-
-            HttpWebRequest request =(HttpWebRequest)WebRequest.Create(ssoAgentConfig.Saml2.IdPURL);
-            request.Method = "POST";
-            
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            */
-
-            context.Response.Clear();
-            context.Response.StatusCode = 404;
-            context.Response.Redirect(ssoAgentConfig.Saml2.IdPURL);
-       
-
         }
 
         private void InitializeAuthnRequestProperties(AuthenticationRequest samlRequest)
@@ -130,6 +97,7 @@ namespace org.wso2.carbon.identity.agent.saml
         private X509Certificate2 LoadX509Certificate()
         {
             // Commented code below code can be incorporated if you want to use custom location for certificate.
+            // But the recommendation is to use the Local machine Store.
             // var baseFolder = AppDomain.CurrentDomain.BaseDirectory;
             // string certificateFilePath = $"{baseFolder}\\wso2carbon.p12";
 
@@ -265,14 +233,17 @@ namespace org.wso2.carbon.identity.agent.saml
   
                 ValidateSAMLResponseStructure(xmlDoc.DocumentElement);
 
-                ValidateSignature(xmlDoc);
+                if (ssoAgentConfig.Saml2.IsResponseSigned)
+                {
+                    ValidateSignature(xmlDoc);
+                }
+                
 
                 XmlNamespaceManager nsManager = new XmlNamespaceManager(xmlDoc.NameTable);
                 nsManager.AddNamespace("saml2", "urn:oasis:names:tc:SAML:2.0:assertion");
 
                 if (xmlDoc.DocumentElement.SelectSingleNode("//saml2:EncryptedAssertion",nsManager) != null)
                 {
-
                     X509Certificate2 cert = LoadX509Certificate();
                     List<SecurityToken> serviceTokens = new List<SecurityToken>
                     {
@@ -317,13 +288,6 @@ namespace org.wso2.carbon.identity.agent.saml
                 HttpContext.Current.Session["SessionIndex"] = GetSessionIndex(AssertionXmlElement.OwnerDocument);
                 HttpContext.Current.Session["Saml2Subject"] = GetSaml2Subject(AssertionXmlElement.OwnerDocument);
                 HttpContext.Current.Session["claims"] = ProcessAttributeStatement(AssertionXmlElement.OwnerDocument);
-
-                /*
-                CustomPrincipal principal = new CustomPrincipal("admin");               
-                HttpContext.Current.User = principal ;
-
-                FormsAuthentication.SetAuthCookie("admin",false);
-                */
             }
         }
 
@@ -353,7 +317,8 @@ namespace org.wso2.carbon.identity.agent.saml
             foreach (XmlNode attributeNode in attributeNodesList)
             {
                 string attributeName = attributeNode.Attributes["Name"].Value;
-                string attributeValue = attributeNode.FirstChild.InnerText;
+                string attributeValue = attributeNode.SelectSingleNode("//saml2:AttributeValue",nsManager).InnerText;
+                
                 claimsDictionary[attributeName] = attributeValue;
             }
 

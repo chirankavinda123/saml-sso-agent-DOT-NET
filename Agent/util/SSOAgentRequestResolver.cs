@@ -1,6 +1,5 @@
 ﻿using Agent;
 using Agent.util;
-using System;
 using System.Web;
 
 namespace org.wso2.carbon.identity.agent.util
@@ -17,23 +16,25 @@ namespace org.wso2.carbon.identity.agent.util
 
         public bool IsSLORequest()
         {
-            return  request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ] != null;
+            return ssoAgentConfig.SAML2SSOLoginEnabled && ssoAgentConfig.Saml2.IsSLOEnabled &&
+                request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_AUTH_REQ] != null;
         }
 
         public bool IsSAML2SSOURL() {
-            return request.RawUrl.EndsWith("/samlsso");
+            return ssoAgentConfig.SAML2SSOLoginEnabled &&
+                request.RawUrl.EndsWith(ssoAgentConfig.SAML2SSOURL);
         }
 
         public bool IsSAML2SSOResponse(HttpRequest request)
         {
-            return request.Params["SAMLResponse"] != null;                
+            return ssoAgentConfig.SAML2SSOLoginEnabled &&
+                request.Params[SSOAgentConstants.SAML2SSO.HTTP_POST_PARAM_SAML2_RESP] != null;                
         }
 
         public bool IsSLOURL()
         {
-            //ssoAgentConfig.getSAML2().isSLOEnabled() &&
-
-            return request.RawUrl.EndsWith(ssoAgentConfig.Saml2.SLOURL);
+            return ssoAgentConfig.SAML2SSOLoginEnabled && ssoAgentConfig.Saml2.IsSLOEnabled &&
+                request.RawUrl.EndsWith(ssoAgentConfig.Saml2.SLOURL);
 
         }
     }

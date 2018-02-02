@@ -32,16 +32,10 @@ namespace Agent.util
         public static class SSOAgentConfig
         {
             public static readonly string ENABLE_SAML2_SSO_LOGIN = "EnableSAML2SSOLogin";
-            public static readonly string ENABLE_OPENID_SSO_LOGIN = "EnableOpenIDLogin";
-            public static readonly string ENABLE_OAUTH2_SAML2_OAUTH2_GRANT = "EnableOAuth2SAML2Grant";
-            public static readonly string ENABLE_DYNAMIC_APP_REGISTRATION = "EnableDynamicAppRegistration";
-            public static readonly string ENABLE_DYNAMIC_SAML_CONFIGURATION = "EnableDynamicSAMLConfiguration";
+            public static readonly string ENABLE_OPENID_SSO_LOGIN = "EnableOpenIDLogin";       
             public static readonly string SAML2_SSO_URL = "SAML2SSOURL";
-            public static readonly string OPENID_URL = "OpenIdURL";
-            public static readonly string OAUTH2_SAML2_GRANT_URL = "OAuth2SAML2GrantURL";
             public static readonly string SKIP_URIS = "SkipURIs";
             public static readonly string QUERY_PARAMS = "QueryParams";
-            public static readonly string PASSWORD_FILEPATH = "/conf/password_temp.txt";
             public static readonly string SAML_REQUEST_QUERY_PARAM = "SAML.Request.Query.Param";
 
             public static class SAML2

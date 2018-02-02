@@ -1,7 +1,5 @@
 ﻿using Agent;
 using Agent.util;
-using Microsoft.AspNet.SignalR;
-using NLog;
 using org.wso2.carbon.identity.agent.saml;
 using org.wso2.carbon.identity.agent.util;
 using System;
@@ -21,21 +19,14 @@ namespace org.wso2.carbon.identity.agent
 
         private void PostAcquireRequestState(object sender, EventArgs e)
         {
-            //var hubContext = GlobalHost.ConnectionManager.GetHubContext<SignalRHub>();
-            // hubContext.Clients.All.onHitRecorded("value is original ");
-
-            Logger logger = LogManager.GetCurrentClassLogger();
-            logger.Info("application begin request");
-
             HttpApplication application = (HttpApplication)sender;
             HttpContext context = application.Context;
 
             SSOAgentConfig ssoAgentConfig =  (SSOAgentConfig)HttpContext.Current.Application[SSOAgentConstants.CONFIG_BEAN_NAME];
             SSOAgentRequestResolver requestResolver = new SSOAgentRequestResolver(context.Request,ssoAgentConfig);
 
-            string sid;
             // Single logout request, as a result of some other application.
-            if (context.Request.Params["SAMLRequest"] != null)
+            if (requestResolver.IsSLORequest())
             {
                 SAML2SSOManager samlSSOManager = new SAML2SSOManager(ssoAgentConfig);
                 samlSSOManager.ProcessSAMLRequest(context);

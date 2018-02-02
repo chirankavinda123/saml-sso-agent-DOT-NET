@@ -2,7 +2,7 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
 
-    <div class="jumbotron">
+    <div class="jumbotron" style="background-color:transparent;">
         <h1 align="center" style="color: #FFDB9F;text-shadow: 3px 6px 4px black;font-weight: bold;">Online Music Store</h1>
         <!-- p class="lead">Description of web site</p -->
         
@@ -22,7 +22,7 @@
     </div>
 
     <% if (Claims != null)
-             { %>
+       { %>
             <div class="jumbotron">
                 <p>You have successfully Logged In. Following claims were recieved. <br/>
                     <% foreach (var claim in Claims)

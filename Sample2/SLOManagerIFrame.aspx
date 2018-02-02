@@ -36,7 +36,7 @@
 
             function PerformRedirect() {
                 //xhr.abort();
-                window.top.location.href = "http://localhost:60662/sample2/Default";
+                window.top.location.href = "http://localhost:60662/music-store/Default";
             }
 
         </script>

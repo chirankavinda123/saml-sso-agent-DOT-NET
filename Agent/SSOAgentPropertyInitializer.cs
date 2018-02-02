@@ -1,9 +1,11 @@
-﻿using Agent.util;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Linq;
 using System.Web;
+using Agent.util;
+using static Agent.util.SSOAgentConstants.SSOAgentConfig;
+using static Agent.util.SSOAgentConstants.SSOAgentConfig.SAML2;
 
 namespace Agent
 {
@@ -39,25 +41,26 @@ namespace Agent
 
         private void LoadDefaultValuesForProperties(Dictionary<string, string> ssoProperties)
         {
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2_SSO_URL,"samlsso");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.HTTP_BINDING,SSOAgentConstants.SAML2SSO.SAML2_POST_BINDING_URI);
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.SP_ENTITY_ID,null);
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.ACS_URL,null);
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.IDP_ENTITY_ID,"localhost");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.IDP_URL, "https://localhost:9443/samlsso");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.ATTRIBUTE_CONSUMING_SERVICE_INDEX,null);
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_SLO,"false");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.SLO_URL, "samllogout");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_SIGNING,"false");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_ASSERTION_ENCRYPTION, "false");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_RESPONSE_SIGNING, "false");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.ENABLE_REQUEST_SIGNING, "false");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.IS_PASSIVE_AUTHN, "false");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN, "false");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.RELAY_STATE,null);
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.POST_BINDING_REQUEST_HTML_PAYLOAD,null);
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.TIME_STAMP_SKEW,"300");
-            ssoProperties.Add(SSOAgentConstants.SSOAgentConfig.SAML2.POST_LOGOUT_REDIRECT_URL,null);
+            ssoProperties.Add(ENABLE_SAML2_SSO_LOGIN, "false");
+            ssoProperties.Add(SAML2_SSO_URL, "samlsso");
+            ssoProperties.Add(HTTP_BINDING,SSOAgentConstants.SAML2SSO.SAML2_POST_BINDING_URI);
+            ssoProperties.Add(SP_ENTITY_ID, null);
+            ssoProperties.Add(ACS_URL, null);
+            ssoProperties.Add(IDP_ENTITY_ID, "localhost");
+            ssoProperties.Add(IDP_URL, "https://localhost:9443/samlsso");
+            ssoProperties.Add(ATTRIBUTE_CONSUMING_SERVICE_INDEX, null);
+            ssoProperties.Add(ENABLE_SLO, "false");
+            ssoProperties.Add(SLO_URL, "samllogout");
+            ssoProperties.Add(ENABLE_ASSERTION_SIGNING, "false");
+            ssoProperties.Add(ENABLE_ASSERTION_ENCRYPTION, "false");
+            ssoProperties.Add(ENABLE_RESPONSE_SIGNING, "false");
+            ssoProperties.Add(ENABLE_REQUEST_SIGNING, "false");
+            ssoProperties.Add(IS_PASSIVE_AUTHN, "false");
+            ssoProperties.Add(IS_FORCE_AUTHN, "false");
+            ssoProperties.Add(RELAY_STATE, null);
+            ssoProperties.Add(POST_BINDING_REQUEST_HTML_PAYLOAD, null);
+            ssoProperties.Add(TIME_STAMP_SKEW, "300");
+            ssoProperties.Add(POST_LOGOUT_REDIRECT_URL, null);
         }
     }
 }

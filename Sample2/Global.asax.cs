@@ -20,11 +20,11 @@ namespace Sample2
 
         public override void Init()
         {
-            MapRequestHandler += MvcApplication_MapRequest;
+            MapRequestHandler += MapRequest;
             base.Init();
         }
 
-        void MvcApplication_MapRequest(object sender, EventArgs e)
+        void MapRequest(object sender, EventArgs e)
         {
             HttpContext.Current.SetSessionStateBehavior(SessionStateBehavior.Required);
         }

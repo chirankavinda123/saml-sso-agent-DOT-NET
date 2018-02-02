@@ -1,4 +1,5 @@
 ﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="sample.SiteMaster" %>
+<%@ Import Namespace="System.IdentityModel.Tokens" %>
 
 <!DOCTYPE html>
 
@@ -47,7 +48,16 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" runat="server" href="~/"><asp:Image runat="server" ImageURL="~/Images/plane.png" Height="30px"></asp:Image></a>
+                    <a class="navbar-brand" runat="server" href="~/">
+                         <%
+                             string subject = " Guest";
+                             if (Session["Saml2Subject"] != null)
+                             {
+                                 subject =((Saml2Subject)Session["Saml2Subject"]).NameId.Value;
+                             }%>
+
+                        Hi, <%=subject%>
+                    </a>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">

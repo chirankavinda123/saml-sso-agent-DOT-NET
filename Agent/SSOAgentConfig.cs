@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Agent.exceptions;
 using Agent.util;
 using NLog;
@@ -8,10 +7,25 @@ namespace Agent
 {
     public class SSOAgentConfig
     {
-
         private bool isSAML2SSOLoginEnabled = false;
+        public bool SAML2SSOLoginEnabled { get { return isSAML2SSOLoginEnabled; } }
 
-        private string SAML2SSOURL { get; set; } = null;
+        public string SetSAML2SSOLoginEnabled
+        {
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    isSAML2SSOLoginEnabled = bool.Parse(value);
+                }
+                else
+                {
+                    isSAML2SSOLoginEnabled = false;
+                }
+            }
+        }
+
+        public string SAML2SSOURL { get; set; } = null;
 
         private HashSet<string> SkipURIs { get; set; } = new HashSet<string>();
 
@@ -28,6 +42,7 @@ namespace Agent
 
         private void InitConfig(Dictionary<string,string> ssoProperties)
         {
+            SetSAML2SSOLoginEnabled = ssoProperties[SSOAgentConstants.SSOAgentConfig.ENABLE_SAML2_SSO_LOGIN];
             SAML2SSOURL = ssoProperties[SSOAgentConstants.SSOAgentConfig.SAML2_SSO_URL];
 
             Saml2.HttpBinding = ssoProperties[SSOAgentConstants.SSOAgentConfig.SAML2.HTTP_BINDING];
@@ -60,14 +75,14 @@ namespace Agent
     {
         Logger logger = LogManager.GetCurrentClassLogger();
 
-        private String httpBinding = null;
-        private String spEntityId = null;
-        private String acsURL = null;
-        private String idPEntityId = null;
-        private String idPURL = null;
+        private string httpBinding = null;
+        private string spEntityId = null;
+        private string acsURL = null;
+        private string idPEntityId = null;
+        private string idPURL = null;
 
-        private String sloURL = null;
-        private String attributeConsumingServiceIndex = null;
+        private string sloURL = null;
+        private string attributeConsumingServiceIndex = null;
 
         private bool isSLOEnabled = false;     
         private bool isAssertionSigned = false;
@@ -76,11 +91,11 @@ namespace Agent
         private bool isRequestSigned = false;
         private bool isPassiveAuthn = false;
         private bool isForceAuthn = false;
-        private String relayState = null;
-        private String signatureValidatorImplClass = null;
+        private string relayState = null;
+        private string signatureValidatorImplClass = null;
         private int timeStampSkewInSeconds = 300;
         
-        private String postBindingRequestHTMLPayload = null;
+        private string postBindingRequestHTMLPayload = null;
 
         public string HttpBinding
         {
@@ -100,7 +115,7 @@ namespace Agent
             }
         }
 
-        public String SPEntityId
+        public string SPEntityId
         {
             get{ return spEntityId; }
             set{
@@ -116,7 +131,7 @@ namespace Agent
             }       
         }
 
-        public String ACSURL
+        public string ACSURL
         {
             get { return acsURL; }
             set
@@ -132,7 +147,7 @@ namespace Agent
             }          
         }
 
-        public String IdPEntityId
+        public string IdPEntityId
         {
             get { return idPEntityId; }
             set 
@@ -149,7 +164,7 @@ namespace Agent
             }
         }
 
-        public String IdPURL
+        public string IdPURL
         {
             get { return idPURL; }
             set
@@ -165,13 +180,13 @@ namespace Agent
             }
         }
         
-        public String SLOURL
+        public string SLOURL
         {
             get{ return sloURL; }
             set { sloURL = value; }
         }
 
-        public String AttributeConsumingServiceIndex
+        public string AttributeConsumingServiceIndex
         {
             get { return attributeConsumingServiceIndex; }
             set
@@ -191,38 +206,38 @@ namespace Agent
             get { return isAssertionSigned; }
         }
 
-        public Boolean IsAssertionEncrypted
+        public bool IsAssertionEncrypted
         {
             get { return isAssertionEncrypted; }
         }
 
-        public Boolean IsResponseSigned
+        public bool IsResponseSigned
         {
             get { return isResponseSigned; }
         }
 
-        public Boolean IsRequestSigned
+        public bool IsRequestSigned
         {
            get { return isRequestSigned; }
         }
 
-        public Boolean IsPassiveAuthn
+        public bool IsPassiveAuthn
         {
             get{ return isPassiveAuthn; }
         }
 
-        public Boolean IsForceAuthn
+        public bool IsForceAuthn
         {
             get { return isForceAuthn; }
         }
 
-        public String RelayState
+        public string RelayState
         {
             get { return relayState; }
             set { relayState = value; }
         }
 
-        public String PostBindingRequestHTMLPayload
+        public string PostBindingRequestHTMLPayload
         {
             get { return postBindingRequestHTMLPayload; }
             set { postBindingRequestHTMLPayload = value; }
@@ -233,7 +248,7 @@ namespace Agent
             get { return isSLOEnabled; }
         }
 
-        public String SetSLOEnabled
+        public string SetSLOEnabled
         {        
             set
             {
@@ -252,7 +267,7 @@ namespace Agent
         public string SetAssertionSigned
         {
             set{
-                if (string.IsNullOrWhiteSpace(value))
+                if (!string.IsNullOrWhiteSpace(value))
                 {
                     isAssertionSigned = bool.Parse(value);
                 }
@@ -265,11 +280,11 @@ namespace Agent
             }
         }
 
-        public String SetAssertionEncrypted
+        public string SetAssertionEncrypted
         {
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (!string.IsNullOrWhiteSpace(value))
                 {
                     isAssertionEncrypted = bool.Parse(value);       
                 }
@@ -282,7 +297,7 @@ namespace Agent
             }
         }
 
-        public String SetResponseSigned
+        public string SetResponseSigned
         {
             set
             {
@@ -299,7 +314,7 @@ namespace Agent
             }
         }
 
-        public String SetRequestSigned
+        public string SetRequestSigned
         {
             set
             {
@@ -316,11 +331,11 @@ namespace Agent
             }
         }
 
-        public String SetPassiveAuthn
+        public string SetPassiveAuthn
         {
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
+                if (!string.IsNullOrWhiteSpace(value))
                 {
                     isPassiveAuthn = bool.Parse(value);
                 }
@@ -338,10 +353,10 @@ namespace Agent
              set { isPassiveAuthn = value; }
         }
 
-        public String SetForceAuthn
+        public string SetForceAuthn
         {
             set {
-                if (string.IsNullOrWhiteSpace(value))
+                if (!string.IsNullOrWhiteSpace(value))
                 {
                     isForceAuthn = bool.Parse(value);
                 }
@@ -354,12 +369,12 @@ namespace Agent
             }
         }
 
-        public String GetSignatureValidatorImplClass()
+        public string GetSignatureValidatorImplClass()
         {
             return signatureValidatorImplClass;
         }
 
-        public void SetSignatureValidatorImplClass(String signatureValidatorImplClass)
+        public void SetSignatureValidatorImplClass(string signatureValidatorImplClass)
         {
             if (this.isResponseSigned || this.isAssertionSigned)
             {
