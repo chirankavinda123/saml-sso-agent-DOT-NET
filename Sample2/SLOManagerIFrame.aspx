@@ -30,6 +30,7 @@
                 //console.log(response.d);
 
                 if (resp == "true") {
+                    //You can handle logout as 
                     PerformRedirect();
                 }
             }

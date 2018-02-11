@@ -27,13 +27,7 @@ namespace Agent
 
         public string SAML2SSOURL { get; set; } = null;
 
-        private HashSet<string> SkipURIs { get; set; } = new HashSet<string>();
-
-        private Dictionary<string, string[]> QueryParams { get; set; } = new Dictionary<string, string[]>();
-
-        //setting public since getter needs access for outer ref
         public SAML2 Saml2 { get; set; } = new SAML2();
-        //private skipURIs ;
 
         public SSOAgentConfig(Dictionary<string,string> properties)
         {
@@ -92,7 +86,6 @@ namespace Agent
         private bool isPassiveAuthn = false;
         private bool isForceAuthn = false;
         private string relayState = null;
-        private string signatureValidatorImplClass = null;
         private int timeStampSkewInSeconds = 300;
         
         private string postBindingRequestHTMLPayload = null;
@@ -365,27 +358,6 @@ namespace Agent
                     logger.Info(SSOAgentConstants.SSOAgentConfig.SAML2.IS_FORCE_AUTHN + 
                         "is not configured properly. Defaulting to \'false\'");
                     this.isForceAuthn = false;
-                }
-            }
-        }
-
-        public string GetSignatureValidatorImplClass()
-        {
-            return signatureValidatorImplClass;
-        }
-
-        public void SetSignatureValidatorImplClass(string signatureValidatorImplClass)
-        {
-            if (this.isResponseSigned || this.isAssertionSigned)
-            {
-                if (signatureValidatorImplClass != null)
-                {
-                    this.signatureValidatorImplClass = signatureValidatorImplClass;
-                }
-                else
-                {
-                    //LOGGER.log(Level.FINE, SSOAgentConstants.SSOAgentConfig.SAML2.SIGNATURE_VALIDATOR +
-                      //      " not configured.");
                 }
             }
         }

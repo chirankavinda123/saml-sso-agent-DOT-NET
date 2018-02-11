@@ -133,7 +133,7 @@ namespace org.wso2.carbon.identity.agent.saml
                 X509Certificate2 cert = LoadX509Certificate();
                 
                 // Embed signature element.
-                logoutRequestStr = SSOAgentUtil.EmbedSignatureIntoAuthnRequest(logoutRequest.BuildRequest(), logoutRequest.Id.Value, cert);
+                logoutRequestStr = EmbedSignatureIntoAuthnRequest(logoutRequest.BuildRequest(), logoutRequest.Id.Value, cert);
             }
             else logoutRequestStr = logoutRequest.BuildRequest().ToString();            
 
@@ -171,7 +171,7 @@ namespace org.wso2.carbon.identity.agent.saml
                 X509Certificate2 cert = LoadX509Certificate();
 
                 // Embed signature element.
-                authnRequest = SSOAgentUtil.EmbedSignatureIntoAuthnRequest(samlRequest.BuildAuthnRequest(), samlRequest.Id.Value, cert);
+                authnRequest = EmbedSignatureIntoAuthnRequest(samlRequest.BuildAuthnRequest(), samlRequest.Id.Value, cert);
             }
             else authnRequest = samlRequest.BuildAuthnRequest().ToString();
 
@@ -180,9 +180,12 @@ namespace org.wso2.carbon.identity.agent.saml
 
         private void WritePostDataToOutputStream(HttpResponse response, string samlRequest)
         {
+
             response.Clear();
             response.ContentType = "text/html";
             StringBuilder sb = new StringBuilder();
+
+            // TODO: Make the below html content customizable with an external resource file.
             sb.Append("<html>");
             sb.AppendFormat(@"<body onload='document.forms[""form""].submit()'>");
             sb.AppendFormat("<p>Now you are being redirected to IDP. If the redirection fails, click the POST button below.</p></n>");
@@ -192,6 +195,7 @@ namespace org.wso2.carbon.identity.agent.saml
             sb.Append("</form>");
             sb.Append("</body>");
             sb.Append("</html>");
+
             response.Write(sb.ToString());
             response.End();
         }
@@ -238,7 +242,6 @@ namespace org.wso2.carbon.identity.agent.saml
                     ValidateSignature(xmlDoc);
                 }
                 
-
                 XmlNamespaceManager nsManager = new XmlNamespaceManager(xmlDoc.NameTable);
                 nsManager.AddNamespace("saml2", "urn:oasis:names:tc:SAML:2.0:assertion");
 
@@ -250,9 +253,13 @@ namespace org.wso2.carbon.identity.agent.saml
                         new X509SecurityToken(cert)
                     };
 
+                    
                     var issuers = new ConfigurationBasedIssuerNameRegistry();
-                    issuers.AddTrustedIssuer("...thumbprint...", "nottherealname");
 
+                    // For creating an object of type SecurityTokenHandlerConfiguration,
+                    // we create a dummy issuer.
+                    issuers.AddTrustedIssuer("...thumbprintHere...", "notTheRealName");
+                    
                     var configuration = new SecurityTokenHandlerConfiguration
                     {
                         AudienceRestriction = { AudienceMode = AudienceUriMode.Never },
@@ -264,14 +271,14 @@ namespace org.wso2.carbon.identity.agent.saml
                     };
 
                     var tokenHandlers = SecurityTokenHandlerCollection.CreateDefaultSecurityTokenHandlerCollection(configuration);
-
-                    XmlNodeReader tokenReader = new XmlNodeReader(xmlDoc.DocumentElement.SelectSingleNode("//saml2:EncryptedAssertion", nsManager)); // XML document with root element <saml:EncryptedAssertion ....
-
+                    
+                    XmlNodeReader tokenReader = new XmlNodeReader(xmlDoc.DocumentElement.SelectSingleNode("//saml2:EncryptedAssertion", nsManager)); 
+                    
                     if (tokenHandlers.CanReadToken(tokenReader))
                     {
                         SecurityToken token = tokenHandlers.ReadToken(tokenReader);
                         XElement xElement = ((Saml2SecurityToken)token).Assertion.ToXElement();
-                        AssertionXmlElement =  XMLUtil.XElementToXMLDocument(xElement).DocumentElement;
+                        AssertionXmlElement =  XElementToXMLDocument(xElement).DocumentElement;
 
                     } else throw new Exception("Unreadable token was encountered.");
                    
@@ -347,10 +354,10 @@ namespace org.wso2.carbon.identity.agent.saml
 
             XmlNode node = Doc.SelectSingleNode("//ds:Signature", nsManager);
 
-            // find signature node
+            // Find signature node.
             XmlNode certElement = Doc.SelectSingleNode("//ds:X509Certificate", nsManager);
 
-            // find certificate node
+            // Find certificate node.
             X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(certElement.InnerText));
             signedXml.LoadXml((XmlElement)node);
 
@@ -404,12 +411,14 @@ namespace org.wso2.carbon.identity.agent.saml
                 DateTime notAfter = DateTime.ParseExact(conditionsNodeList[0].Attributes["NotOnOrAfter"].Value, "yyyy-MM-ddThh:mm:ssZ", 
                     CultureInfo.InvariantCulture);
 
-                if (notBefore != null && notBefore.AddSeconds(-300) > DateTime.Now)
+                int timeStampSkew = ssoAgentConfig.Saml2.GetTimeStampSkewInSeconds();
+                
+                if (notBefore != null && notBefore.AddSeconds(-timeStampSkew) > DateTime.Now)
                 {
                     throw new SSOAgentException("Falied to meet assertion condition NotBefore.");
                 }
                
-                if (notAfter != null && notAfter.AddSeconds(300) < DateTime.Now)
+                if (notAfter != null && notAfter.AddSeconds(timeStampSkew) < DateTime.Now)
                 {
                     throw new SSOAgentException("Falied to meet assertion condition NotAfter.");
                 }
@@ -477,6 +486,90 @@ namespace org.wso2.carbon.identity.agent.saml
             byte[] bytes = Encoding.UTF8.GetBytes(authnRequest);
             string base64 = Convert.ToBase64String(bytes);
             return base64;           
+        }
+
+        private string EmbedSignatureIntoAuthnRequest(XElement xElement, string id, X509Certificate2 cert)
+        {
+            StringWriter sw = new StringWriter();
+            XmlTextWriter xw = new XmlTextWriter(sw);
+            BuildSignature(XElementToXMLDocument(xElement), id, cert).WriteTo(xw);
+            return sw.ToString();
+        }
+
+        private static XmlDocument BuildSignature(XmlDocument doc, String id, X509Certificate2 cert)
+        {
+            X509Certificate2 requestSigningCert = cert;
+
+            doc.PreserveWhitespace = true;
+
+            SignedXml signedXml = new SignedXml(doc);
+
+            KeyInfo keyInfo = new KeyInfo();
+
+            keyInfo.AddClause(new KeyInfoX509Data(requestSigningCert));
+
+            signedXml.KeyInfo = keyInfo;
+
+            signedXml.SignedInfo.CanonicalizationMethod = SignedXml.XmlDsigExcC14NTransformUrl;
+
+            RSACryptoServiceProvider rsaKey = (RSACryptoServiceProvider)requestSigningCert.PrivateKey;
+
+            signedXml.SigningKey = rsaKey;
+
+            Reference reference = new Reference
+            {
+                Uri = "#" + id
+            };
+
+            XmlDsigEnvelopedSignatureTransform env = new XmlDsigEnvelopedSignatureTransform();
+
+            reference.AddTransform(env);
+
+            XmlDsigExcC14NTransform c16n = new XmlDsigExcC14NTransform();
+
+            //c16n.PropagatedNamespaces.Add("ds", "http://www.w3.org/2000/09/xmldsig#");
+            // line above throws null pointer exception.
+
+            reference.AddTransform(c16n);
+            signedXml.AddReference(reference);
+
+            // Now we can compute the signature.
+            signedXml.ComputeSignature();
+
+            // Append signature to document.
+            XmlElement xmlDigitalSignature = signedXml.GetXml();
+
+            XmlNamespaceManager nsManager = new XmlNamespaceManager(doc.NameTable);
+            nsManager.AddNamespace("saml2", "urn:oasis:names:tc:SAML:2.0:assertion");
+
+            doc.DocumentElement.InsertAfter(doc.ImportNode(xmlDigitalSignature, true), doc.SelectSingleNode("//saml2:Issuer", nsManager));
+
+            return doc;
+        }
+
+        private XmlDocument XElementToXMLDocument(XElement x)
+        {
+            StringBuilder sb = new StringBuilder();
+            XmlWriterSettings xws = new XmlWriterSettings();
+            xws.OmitXmlDeclaration = true;
+            xws.Indent = true;
+
+            using (XmlWriter xw = XmlWriter.Create(sb, xws))
+            {
+                XElement child2 = x;
+                child2.WriteTo(xw);
+            }
+
+            Console.WriteLine(sb.ToString());
+
+            XmlDocument doc = new XmlDocument
+            {
+                PreserveWhitespace = true
+            };
+
+            doc.LoadXml(sb.ToString());
+
+            return doc;
         }
 
     }

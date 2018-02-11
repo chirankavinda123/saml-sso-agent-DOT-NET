@@ -23,13 +23,5 @@ namespace Sample2
             }
             return "[slo] null";  
         }
-
-        [WebMethod(EnableSession = true)]
-        public string SetSessionValue()
-        {
-            Session["claims"] = "helloValue";
-
-            return "session value set";
-        }
     }
 }

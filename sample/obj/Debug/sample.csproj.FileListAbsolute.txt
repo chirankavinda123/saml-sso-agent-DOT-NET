@@ -20,9 +20,6 @@ C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AI.Web.dll
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AI.WindowsServer.dll
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.ApplicationInsights.dll
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.FriendlyUrls.dll
-C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.SignalR.Client.dll
-C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.SignalR.Core.dll
-C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.SignalR.SystemWeb.dll
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.Web.Optimization.WebForms.dll
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.Owin.dll
@@ -47,9 +44,6 @@ C:\Users\chira\source\repos\sample\sample\bin\Kentor.AuthServices.xml
 C:\Users\chira\source\repos\sample\sample\bin\Kentor.AuthServices.HttpModule.xml
 C:\Users\chira\source\repos\sample\sample\bin\Kentor.AuthServices.Mvc.xml
 C:\Users\chira\source\repos\sample\sample\bin\Kentor.AuthServices.Owin.xml
-C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.SignalR.Client.xml
-C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.SignalR.Core.xml
-C:\Users\chira\source\repos\sample\sample\bin\Microsoft.AspNet.SignalR.SystemWeb.xml
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.Owin.xml
 C:\Users\chira\source\repos\sample\sample\bin\Microsoft.Owin.Host.SystemWeb.xml
